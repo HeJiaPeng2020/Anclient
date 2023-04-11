@@ -324,13 +324,13 @@ export class UsersTier extends Semantier {
 			this.errCtx);
 	}
 
-	record(conds: PageInf, onLoad: OnLoadOk<Tierec>) {
+	record(rec: Tierec, onLoad: OnLoadOk<Tierec>) {
 		if (!this.client) return;
 		let client = this.client;
 		let that = this;
 
 		let req = client.userReq(this.uri, this.port,
-					new UserstReq( this.uri, conds, {} as unknown as PageInf )/*9、修改前：new UserstReq( this.uri, conds )*/
+					new UserstReq( this.uri, rec, {} as unknown as PageInf )/*9、修改前：new UserstReq( this.uri, conds )*/
 					.A(UserstReq.A.rec) );
 
 		client.commit(req,
@@ -412,7 +412,7 @@ export class UserstReq extends UserReq {
 		// Design Note:
 		// can we use dynamic Protocol?
 		Protocol.registerBody(UserstReq.__type__, (jsonBd) => {
-			return new UserstReq(uri, jsonBd);
+			return new UserstReq(uri, jsonBd, null);
 		});
 		return undefined;
 	}();
