@@ -311,7 +311,7 @@ export class UsersTier extends Semantier {
 		let that = this;
 
 		let req = client.userReq(this.uri, this.port,
-					new UserstReq( this.uri, conds )
+					new UserstReq( this.uri, {}, conds )/*10、修改前：new UserstReq( this.uri, conds )*/)
 					.A(UserstReq.A.records) );
 
 		client.commit(req,
@@ -330,7 +330,7 @@ export class UsersTier extends Semantier {
 		let that = this;
 
 		let req = client.userReq(this.uri, this.port,
-					new UserstReq( this.uri, conds )
+					new UserstReq( this.uri, conds, {} as unknown as PageInf )/*9、修改前：new UserstReq( this.uri, conds )*/)
 					.A(UserstReq.A.rec) );
 
 		client.commit(req,
@@ -364,7 +364,7 @@ export class UsersTier extends Semantier {
 		this.rec.iv = null; // working - but why?
 
 		let req = this.client.userReq(uri, this.port,
-			new UserstReq( uri, { record: this.rec, relations: this.collectRelations(), pk: this.pkval.v } )
+			new UserstReq( uri, { record: this.rec, relations: this.collectRelations(), pk: this.pkval.v }, {} as unknown as PageInf )/*8、修改前：new UserstReq( uri, { record: this.rec, relations: this.collectRelations(), pk: this.pkval.v } )*/
 			.A(crud === CRUD.c ? UserstReq.A.insert : UserstReq.A.update) );
 
 		client.commit(req,
@@ -398,7 +398,7 @@ export class UsersTier extends Semantier {
 
 		if (ids && ids.size > 0) {
 			let req = this.client.userReq(uri, this.port,
-				new UserstReq( uri, { deletings: [...Array.from(ids)] } )
+				new UserstReq( uri, { deletings: [...Array.from(ids)] }, {} as unknown as PageInf )/*7、修改前：new UserstReq( uri, { deletings: [...Array.from(ids)] } )*/
 				.A(UserstReq.A.del) );
 
 			client.commit(req, onOk, this.errCtx);
@@ -439,7 +439,7 @@ export class UserstReq extends UserReq {
 	page: PageInf;
 
 	// constructor (uri: string, args = {} as Tierec & { record? : {userId?: string}}) {
-	constructor (uri: string, query: PageInf | any) {
+	constructor (uri: string, query: Tierec, pageInf: PageInf) {/*1、修改前：constructor (uri: string, query: PageInf | any)*/
 		super(uri, "a_users");
 		this.type = UserstReq.__type__;
 		this.uri = uri;
@@ -447,18 +447,18 @@ export class UserstReq extends UserReq {
 		/// FIXME: obviousely this is should be refactored to the chained calls API
 
 		/// case r
-		if (query.page === undefined && typeof query.condtsRec === 'function')
+		if (pageInf.page === undefined && typeof pageInf.condtsRec === 'function')/*2、修改前：(query.page === undefined && typeof query.condtsRec === 'function')*/
 			throw Error("Scince anreact 0.4.17, UserstReq no longer user Tierec as query condition.");
 
-		if (query.condtsRec) {
-			let args = query.condtsRec() as Tierec & { record? : {userId?: string} };
+		if (pageInf.condtsRec) {/*3、修改前：query.condtsRec*/
+			let args = pageInf.condtsRec() as Tierec & { record? : {userId?: string} };/*4、修改前：query.condtsRec()*/
 			this.userId = (args.userId || args.record?.userId) as string;
 			this.userName = args.userName as string;
 			this.orgId = args.orgId as string;
 			this.roleId = args.roleId as string;
 			this.hasTodos = toBool(args.hasTodos as string | boolean);
 
-			this.page = new PageInf(query.page, query.size);
+			this.page = new PageInf(pageInf.page, pageInf.size);
 		}
 		/// case A = rec (TRecordForm loading)
 		else if (query.userId) {
@@ -474,6 +474,14 @@ export class UserstReq extends UserReq {
 		}
 
 		/// case d
-		this.deletings = query.deletings as string[];
+		else if (query.deletings) {/*5、修改前：this.deletings = query.deletings as string[];*/
+			this.deletings = query.deletings as string[];
+		}
+	
+		/// case ins /*6、新增语句*/
+		else {
+			this.record = query.record as Tierec;
+			this.relations = query.relations as DbRelations;	
+		}
 	}
 }
