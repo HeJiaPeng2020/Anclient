@@ -311,7 +311,7 @@ export class UsersTier extends Semantier {
 		let that = this;
 
 		let req = client.userReq(this.uri, this.port,
-					new UserstReq( this.uri, {}, conds )/*10、修改前：new UserstReq( this.uri, conds )*/)
+					new UserstReq( this.uri, {}, conds )/*10、修改前：new UserstReq( this.uri, conds )*/
 					.A(UserstReq.A.records) );
 
 		client.commit(req,
@@ -330,7 +330,7 @@ export class UsersTier extends Semantier {
 		let that = this;
 
 		let req = client.userReq(this.uri, this.port,
-					new UserstReq( this.uri, conds, {} as unknown as PageInf )/*9、修改前：new UserstReq( this.uri, conds )*/)
+					new UserstReq( this.uri, conds, {} as unknown as PageInf )/*9、修改前：new UserstReq( this.uri, conds )*/
 					.A(UserstReq.A.rec) );
 
 		client.commit(req,
@@ -463,7 +463,7 @@ export class UserstReq extends UserReq {
 		/// case A = rec (TRecordForm loading)
 		else if (query.userId) {
 			this.record = query as Tierec;
-			this.userId = query.userId;
+			this.userId = query.userId as string;
 			this.page = new PageInf(0, -1);
 		}
 		/// case A = u
